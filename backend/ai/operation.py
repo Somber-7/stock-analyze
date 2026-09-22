@@ -24,6 +24,7 @@ from .dart_client import DartError
 from .order_plan import build_order_plan
 from .archive import build_snapshot
 from .outcomes import evaluate_outcomes
+from .telemetry import summarize
 from backend.namuh.chart import get_daily_chart
 
 
@@ -137,6 +138,7 @@ class AIOperation:
     def snapshot(self):
         state = self.read()
         trade = self.trading.snapshot()
+        telemetry = summarize(state['runs'])
         try: connection = self.connection()
         except SettingsError:
             connection = dict(provider='', model='', has_key=False)
@@ -144,7 +146,7 @@ class AIOperation:
             run.pop('binding', None)
             run.pop('comparison_scope', None)
         state['runs'] = list(reversed(state['runs']))[:50]
-        return dict(**state, running=not self.halted.is_set(), busy=self.busy,
+        return dict(**state, telemetry=telemetry, running=not self.halted.is_set(), busy=self.busy,
                     next_run_at=self.next_run_at, mode=trade['mode'],
                     engine_running=trade['running'] if trade['mode'] == 'live' else self.trading.paper.running,
                     web_search=self.settings.snapshot().get('tools', {}).get('tavily', {'has_key': False}),
@@ -268,8 +270,13 @@ class AIOperation:
 
     def _analyze(self, run_id, config, credentials, binding, version, source):
         began = time.monotonic()
+        timings = {}
+        def timed(stage, fn, *args, **kwargs):
+            start = time.monotonic()
+            try: return fn(*args, **kwargs)
+            finally: timings[stage] = round((time.monotonic() - start) * 1000)
         try:
-            context = self.context_loader(config, self.trading)
+            context = timed('context_ms', self.context_loader, config, self.trading)
             context['investor_preferences']={key:config.get(key) for key in ('holding_purpose','max_position_pct','review_drawdown_pct')}
             if self.read()['version'] != version or self.current_binding() != binding or self.closed.is_set():
                 raise OperationError('분석 중 설정 또는 실행 상태가 변경되었습니다.')
@@ -281,7 +288,7 @@ class AIOperation:
                 def dart_cancelled():
                     return self.closed.is_set() or self.read()['version'] != version or self.current_binding() != binding
                 try:
-                    context['dart_research'] = self.dart_fn([dict(code=s['code'],name=s['name']) for s in context['stocks']],
+                    context['dart_research'] = timed('dart_ms', self.dart_fn, [dict(code=s['code'],name=s['name']) for s in context['stocks']],
                                                           credentials['dart_key'],cancelled=dart_cancelled)
                 except DartError as exc:
                     context['dart_research'] = dict(status='error',stocks=[],sources=[],error=str(exc))
@@ -301,7 +308,7 @@ class AIOperation:
                 for stock in research_stocks:
                     if aliases_by_code.get(stock['code']): stock['aliases']=aliases_by_code[stock['code']]
                     if stock['code'] in financial_codes: stock['has_dart_financials']=True
-                context['web_research'] = self.research_fn(
+                context['web_research'] = timed('web_ms', self.research_fn,
                     research_stocks,
                     credentials['tavily_key'], cancelled=cancelled)
                 if cancelled(): raise OperationError('웹 검색 중 설정 또는 실행 상태가 변경되었습니다.')
@@ -317,7 +324,7 @@ class AIOperation:
             enrich_context(context)
             input_snapshot=build_snapshot(config,context,_INSTRUCTIONS)
             self.save_inputs(run_id,input_snapshot)
-            result = generate_fn(credentials['provider'], credentials['key'], credentials['model'], context, config['objective'])
+            result = timed('model_ms', generate_fn, credentials['provider'], credentials['key'], credentials['model'], context, config['objective'])
             output = result['analysis']
             rows = output['decisions']
             if len(rows) != len(config['codes']) or {r['code'] for r in rows} != set(config['codes']):
@@ -367,6 +374,8 @@ class AIOperation:
             with self.change() as state:
                 stored = next(r for r in state['runs'] if r['id'] == run_id)
                 changed = state['version'] != version or self.current_binding() != binding or self.closed.is_set()
+                timings['total_ms'] = round((time.monotonic() - began) * 1000)
+                stored['timings'] = timings
                 if changed:
                     stored.update(status='interrupted', completed_at=now(), error='설정 변경 또는 정지로 분석 결과의 주문 연결을 중단했습니다.')
                     return
@@ -389,7 +398,9 @@ class AIOperation:
             safe = str(exc) if isinstance(exc, (OperationError, ProviderError, SettingsError, SearchError)) else 'AI 분석 또는 주문 준비에 실패했습니다. 연결·잔고·시세 상태를 확인하세요.'
             with self.change() as state:
                 stored = next(r for r in state['runs'] if r['id'] == run_id)
-                if stored['status'] == 'analyzing': stored.update(status='error', error=safe, completed_at=now())
+                if stored['status'] == 'analyzing':
+                    stored.update(status='error', error=safe, completed_at=now(),
+                                  timings=dict(timings, total_ms=round((time.monotonic() - began) * 1000)))
                 if isinstance(exc,ReportValidationError):
                     stored.update(validation_issue=copy.deepcopy(exc.issue),usage=copy.deepcopy(exc.usage))
                 state['error'] = safe

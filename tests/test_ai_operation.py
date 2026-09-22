@@ -467,6 +467,28 @@ class OperationTests(unittest.TestCase):
         self.assertEqual(run['usage'],dict(input_tokens=100,output_tokens=30))
         self.assertEqual(run['decisions'],[])
         self.assertFalse(self.gateway.sent)
+        self.assertIn('model_ms',run['timings'])
+        self.assertIn('total_ms',run['timings'])
+
+    def test_stage_timings_and_summary_are_recorded(self):
+        run=self.analyze()
+        self.assertEqual(run['status'],'ready')
+        self.assertEqual(set(run['timings']),{'context_ms','model_ms','total_ms'})
+        self.assertTrue(all(type(v) is int and v>=0 for v in run['timings'].values()))
+        self.assertGreaterEqual(run['timings']['total_ms'],run['timings']['model_ms'])
+        telemetry=self.service.snapshot()['telemetry']
+        self.assertEqual(telemetry['overall']['ready'],1)
+        self.assertEqual(telemetry['overall']['input_tokens']['total'],10)
+        self.assertEqual(telemetry['by_model'][0]['model'],'test')
+
+    def test_failed_analysis_keeps_elapsed_time(self):
+        def broken(config,trading): raise ValueError('boom')
+        self.service.context_loader=broken
+        run=self.analyze()
+        self.assertEqual(run['status'],'error')
+        self.assertIn('context_ms',run['timings'])
+        self.assertIn('total_ms',run['timings'])
+        self.assertNotIn('model_ms',run['timings'])
 
 
 if __name__ == '__main__': unittest.main()

@@ -12,6 +12,18 @@ import { excerpt, marketAssessment, quantityDecision } from '../lib/analysisRepo
 import AIReportText from './AIReportText'
 
 const fmt = (value, suffix = '') => value == null || !Number.isFinite(Number(value)) ? '미확인' : `${Number(value).toLocaleString('ko-KR')}${suffix}`
+const seconds = ms => ms == null || !Number.isFinite(Number(ms)) ? '미확인' : `${(Number(ms) / 1000).toLocaleString('ko-KR', { maximumFractionDigits: 1 })}초`
+const STAGES = [['context_ms', '시세·잔고'], ['dart_ms', 'DART'], ['web_ms', '웹 검색'], ['model_ms', 'AI 응답']]
+function RunTimings({ timings }) {
+  if (!timings) return null
+  const stages = STAGES.filter(([key]) => timings[key] != null).map(([key, label]) => `${label} ${seconds(timings[key])}`)
+  return <>소요 {seconds(timings.total_ms)}{stages.length > 0 && ` (${stages.join(' · ')})`}<br /></>
+}
+function RecentTelemetry({ telemetry }) {
+  const all = telemetry?.overall
+  if (!all?.runs) return null
+  return <p>최근 {fmt(all.runs, '회')} · 완료 {fmt(all.ready, '회')} · 실패 {fmt(all.error, '회')} · 중단 {fmt(all.interrupted, '회')}<br />소요 중앙값 {seconds(all.total_ms.p50)} · 95% {seconds(all.total_ms.p95)} (AI 응답 중앙값 {seconds(all.model_ms.p50)}, 기록 {fmt(all.total_ms.samples, '회')})<br />회당 토큰 입력 {fmt(all.input_tokens.per_run)} · 출력 {fmt(all.output_tokens.per_run)}</p>
+}
 const lines = value => Array.isArray(value) ? value : value ? [value] : []
 const SIDES = { buy: '매수', sell: '매도', hold: '유지' }
 const STATUSES = { analyzing: '분석 중', ready: '분석 완료', error: '분석 오류', interrupted: '분석 중단' }
@@ -90,6 +102,6 @@ export default function AIAnalysisReport({ run, names, state, expired, hasOrderP
       </details>
       <AIOutcomeReport runId={run.id} inputRecord={run.input_record} initialOutcome={run.outcomes} />
     </>}
-    <details className="aio-fold aio-footnote"><summary>실행 정보·주문 조건</summary><p>{run.provider} · {run.model}<br />요청 {timestamp(run.created_at)} · 완료 {timestamp(run.completed_at)}<br />분석 자료 조회 {timestamp(run.data_at)}<br />토큰 입력 {fmt(run.usage?.input_tokens)} · 출력 {fmt(run.usage?.output_tokens)}</p><p>제안은 요청 시점부터 5분간 유효합니다. 주문 직전 새 시세를 지정가로 사용하며, 기준가 대비 3% 초과 변동이나 시세 재조회 후 30초 초과 시 전송을 중단합니다. 정지는 이미 접수된 주문을 취소하지 않습니다.</p></details>
+    <details className="aio-fold aio-footnote"><summary>실행 정보·주문 조건</summary><p>{run.provider} · {run.model}<br />요청 {timestamp(run.created_at)} · 완료 {timestamp(run.completed_at)}<br />분석 자료 조회 {timestamp(run.data_at)}<br /><RunTimings timings={run.timings} />토큰 입력 {fmt(run.usage?.input_tokens)} · 출력 {fmt(run.usage?.output_tokens)}</p><RecentTelemetry telemetry={state?.telemetry} /><p>제안은 요청 시점부터 5분간 유효합니다. 주문 직전 새 시세를 지정가로 사용하며, 기준가 대비 3% 초과 변동이나 시세 재조회 후 30초 초과 시 전송을 중단합니다. 정지는 이미 접수된 주문을 취소하지 않습니다.</p></details>
   </div>
 }

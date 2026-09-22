@@ -13,6 +13,26 @@ SHELL_PHRASES = ('본문선택', '첨부파일 선택', 'pdf 저장', '다운로
                  '문서 목차', '회사의 개요', '사업의 내용', '재무에 관한 사항', '열기')
 
 
+# Search excerpts are untrusted. Articles do not address the model or name the
+# output schema, so these phrases drop the source instead of relying on the prompt.
+INSTRUCTION_PATTERNS = tuple(re.compile(p, re.IGNORECASE) for p in (
+    r'\b(?:ignore|disregard|forget|override)\b.{0,40}\b(?:instructions?|prompts?|rules?|directions?)\b',
+    r'\b(?:system\s+prompt|developer\s+message)\b',
+    r'\byou\s+are\s+(?:now\s+)?(?:an?\s+)?(?:ai|assistant|language\s+model|chatgpt|claude|gemini)\b',
+    r'</?\s*(?:system|assistant|user|instructions?)\s*>',
+    r'(?:^|\n)\s*(?:system|assistant)\s*:',
+    r'(?:이전|위의?|앞의|기존|모든)\s*(?:지시|지침|명령|규칙|프롬프트)[^\n]{0,20}(?:무시|잊|따르지)',
+    r'시스템\s*프롬프트',
+    r'(?:AI|에이아이|인공지능|모델|어시스턴트)\s*(?:는|은|에게|야|여)[^\n]{0,30}(?:지시|명령|출력|응답)\s*(?:하라|하세요|해라|할\s*것)',
+    r'(?<![A-Za-z0-9_])(?:target_quantity|source_ids|decision_basis|review_conditions|market_view)(?![A-Za-z0-9_])',
+))
+
+
+def instruction_like(text):
+    text=unicodedata.normalize('NFKC', text if isinstance(text,str) else '')
+    return any(pattern.search(text) for pattern in INSTRUCTION_PATTERNS)
+
+
 def normalized(value):
     text=unicodedata.normalize('NFKC', value if isinstance(value,str) else '').casefold()
     return ''.join(ch for ch in text if ch.isalnum())
@@ -95,6 +115,7 @@ def _date_from_title(title):
 
 def validate_source(*, name, code, aliases, kind, title, content, published, today):
     content=clean_excerpt(content)
+    if instruction_like(title+'\n'+content): return 'instruction_like'
     combined_text=title+' '+content
     combined=normalized(combined_text)
     name_term=normalized(name)
