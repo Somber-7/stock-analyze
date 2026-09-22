@@ -1,0 +1,8 @@
+.workspace-status { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 14px; margin-left: auto; }
+.workspace-clock { display: inline-flex; align-items: center; gap: 11px; padding: 7px 12px; background: #18211e; border: 1px solid #2f4238; border-radius: 10px; color: var(--accent); white-space: nowrap; }
+.workspace-clock-content { display: flex; align-items: baseline; gap: 10px; }
+.workspace-clock-date { color: #a6b9af; font-size: 12px; letter-spacing: .25px; }
+.workspace-clock-time { color: var(--text); font-size: 16px; line-height: 1.2; font-weight: 600; letter-spacing: .5px; font-variant-numeric: tabular-nums; }
+.workspace-clock-zone { color: var(--accent); font-size: 9px; letter-spacing: .6px; font-weight: 500; margin-left: 8px; }
+.workspace-bar { height: auto; min-height: 69px; gap: 14px; padding-block: 10px; flex-wrap: wrap; }
+@media(max-width:1000px) { .workspace-status { gap: 8px; } .workspace-clock { gap: 8px; padding-inline: 9px; } .workspace-clock svg { display: none; } .workspace-clock-date { font-size: 11px; } .workspace-clock-time { font-size: 15px; } .workspace-bar > span:first-child { font-size: 10px; } .breadcrumb-divider { margin-inline: 7px; } }

@@ -1,0 +1,9 @@
+.connection-status { display: grid; gap: 5px; min-width: 0; font-size: 11px; color: var(--muted); }
+.connection-status-label { display: inline-flex; align-items: center; gap: 6px; font-weight: 550; }
+.connection-status-label i { width: 6px; height: 6px; flex: 0 0 6px; border-radius: 50%; background: currentColor; }
+.connection-status.is-success .connection-status-label { color: #a9cdb8; }
+.connection-status.is-error .connection-status-label { color: #edb3b7; }
+.connection-status.is-checking .connection-status-label { color: #aac9de; }
+.connection-status.is-stale .connection-status-label { color: #d9c59a; }
+.connection-status-detail { color: var(--muted); font-size: 11px; line-height: 1.5; overflow-wrap: anywhere; }
+.connection-status-time { color: var(--muted); font-size: 10px; font-variant-numeric: tabular-nums; }

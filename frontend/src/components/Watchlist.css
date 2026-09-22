@@ -1,0 +1,49 @@
+.watch-page { display: grid; gap: 22px; }
+.watch-page .section-card { padding: 22px; }
+.watch-page .watch-add { overflow: visible; position: relative; z-index: 2; }
+.watch-page button, .price-alert-toast button { font: inherit; cursor: pointer; border: 1px solid var(--line); border-radius: 8px; background: var(--raised); color: var(--text); padding: 9px 13px; }
+.watch-page button:hover, .price-alert-toast button:hover { border-color: var(--accent); }
+.watch-page button:disabled { opacity: .45; cursor: default; }
+.watch-page button.watch-primary { background: var(--accent); color: #17291e; border-color: var(--accent); font-weight: 700; white-space: nowrap; }
+.watch-stats { display: grid; grid-template-columns: 1fr 1fr 1.4fr; gap: 16px; }
+.watch-stats > div { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; display: flex; flex-direction: column; gap: 12px; }
+.watch-stats span, .watch-stats small { color: var(--muted); font-size: 12px; }
+.watch-stats strong { font-size: 30px; font-weight: 600; }
+.watch-stats strong small { margin-left: 8px; }
+.watch-stats strong.watch-status { font-size: 20px; color: var(--accent); }
+.watch-add { display: flex; align-items: center; gap: 20px; }
+.watch-add .stock-picker { flex: 1; min-width: 0; }
+.watch-add > button { margin-bottom: 16px; }
+.watch-section-title { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 18px; }
+.watch-section-title h3 { margin: 0; font-size: 16px; }
+.watch-section-title span { color: var(--muted); font-size: 11px; }
+.watch-table-wrap { overflow-x: auto; }
+.watch-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
+.watch-table th { color: var(--muted); font-size: 11px; font-weight: 500; padding: 12px 10px; border-bottom: 1px solid var(--line); }
+.watch-table td { padding: 17px 10px; border-bottom: 1px solid var(--line-soft); }
+.watch-table td small { display: block; margin-top: 6px; color: var(--muted); font-size: 11px; }
+.watch-table .watch-stock { padding: 0; background: none; border: none; font-weight: 600; text-align: left; white-space: nowrap; }
+.watch-actions { display: flex; gap: 5px; flex-wrap: wrap; }
+.watch-actions button { font-size: 11px; padding: 6px 9px; white-space: nowrap; }
+.watch-time { font-size: 11px; color: var(--muted); }
+.watch-empty { text-align: center; padding: 36px 16px; color: var(--muted); font-size: 14px; }
+.watch-empty small { display: block; font-size: 12px; margin-top: 10px; }
+.watch-help { font-size: 11px; line-height: 1.8; color: var(--muted); margin: 16px 0 0; }
+.watch-error { color: var(--up) !important; font-size: 12px; }
+.watch-alert-form { display: grid; grid-template-columns: 1.5fr 1fr 1fr auto; align-items: end; gap: 12px; }
+.watch-alert-form label { color: var(--muted); font-size: 12px; display: grid; gap: 8px; min-width: 0; }
+.watch-alert-form input, .watch-alert-form select { background: var(--input); color: var(--text); border: 1px solid var(--line); border-radius: 8px; padding: 11px; min-width: 0; width: 100%; font: inherit; }
+.watch-alert-form > button { height: 39px; }
+.watch-alert-row { padding: 18px 0; border-top: 1px solid var(--line-soft); display: grid; grid-template-columns: 1fr 1.4fr auto; align-items: center; gap: 12px; font-size: 13px; }
+.watch-alert-row strong small { display: inline; margin-left: 6px; }
+.watch-alert-row small { display: block; margin-top: 7px; font-size: 11px; color: var(--muted); font-weight: 400; }
+.watch-alert-row p { margin: 7px 0 0; color: var(--muted); font-size: 12px; }
+.watch-pill { display: inline-block; padding: 4px 8px; border-radius: 5px; background: var(--raised); color: var(--muted); font-size: 11px; }
+.watch-pill.triggered { background: var(--accent-bg); color: var(--accent); }
+.price-alert-toast { position: fixed; right: 24px; bottom: 24px; z-index: 100; width: min(390px, calc(100vw - 48px)); padding: 20px; border: 1px solid var(--accent); border-radius: 14px; background: var(--surface); box-shadow: 0 12px 50px #0008; }
+.price-alert-toast h3 { font-size: 15px; color: var(--accent); margin: 0 0 12px; }
+.price-alert-toast p { font-size: 13px; line-height: 1.6; margin: 8px 0; }
+.price-alert-toast small { color: var(--muted); font-size: 11px; }
+.price-alert-toast footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
+@media (max-width: 1100px) { .watch-alert-form { grid-template-columns: 1fr 1fr; } .watch-section-title { flex-wrap: wrap; } }
+@media (max-width: 760px) { .watch-stats { gap: 8px; } .watch-stats > div { padding: 14px; } .watch-add { flex-direction: column; align-items: stretch; } .watch-alert-row { grid-template-columns: 1fr; } }

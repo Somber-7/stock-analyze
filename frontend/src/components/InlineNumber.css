@@ -1,0 +1,7 @@
+.inline-number { display: inline-flex; align-items: baseline; flex-wrap: wrap; justify-content: inherit; gap: .35em; max-width: 100%; font-variant-numeric: tabular-nums; letter-spacing: 0; }
+.inline-number > .inline-number-value { color: inherit; font-size: inherit; font-weight: 600; white-space: nowrap; }
+.inline-number > .inline-number-rate { color: inherit; font-size: max(11px, .72em); font-weight: 500; white-space: nowrap; }
+td .inline-number { justify-content: flex-end; }
+.summary-value.inline-number { display: inline-flex; }
+.aio-kpis .inline-number, .aio-kpis .inline-number-value { font-size: inherit; color: inherit; }
+.aio-kpis .inline-number-rate { font-size: max(11px, .72em); color: inherit; }

@@ -1,0 +1,40 @@
+# API Keys
+.env
+Api_Key.txt
+.namuh_token_cache.json
+.namuh_token_cache.tmp
+.namuh_stocks.json
+.namuh_stocks.tmp
+.paper_trading.sqlite3*
+.live_trading.sqlite3*
+frontend/node_modules/
+frontend/dist/
+dist-electron-namuh/
+build_tmp/
+backend.exe
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+*.egg-info/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+.watchlist.sqlite3*
+.ai_settings.enc
+.ai_operation.sqlite3*
+.ai-settings-*.tmp
+
+# 증권사 제공 참고 자료 (공개 저장소에는 올리지 않음)
+docs/namuh-api-reference.json
+docs/namuh-full-api-reference.json
+docs/namuh-stock-master.h
+docs/namuh-us-stock-master.h
