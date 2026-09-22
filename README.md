@@ -3,6 +3,10 @@
 NAMUH PLUG 기반 국내주식 조회 대시보드입니다.
 React/Vite 화면, FastAPI 백엔드, Electron 데스크톱 실행을 사용합니다.
 
+> **저장소 안내**
+> - git 없이 로컬에서 개발해 오다가 2026년 9월에 공개 저장소로 처음 올렸습니다. 그래서 커밋 기록은 그 이후부터 시작합니다.
+> - API 키·토큰 캐시·로컬 DB·빌드 결과(`dist-electron-namuh/`, `backend.exe`)와 증권사 제공 참고 자료(`docs/namuh-*.json`, `.h`)는 저장소에 넣지 않았습니다. 아래 실행 방법의 exe 파일은 `build.bat`로 직접 빌드해야 생깁니다.
+
 ## 실행
 
 Windows에서는 다음 중 하나를 실행합니다.
